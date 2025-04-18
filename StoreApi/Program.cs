@@ -1,21 +1,46 @@
 
+using AutoMapper;
+using Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Persistence;
+using Persistence.Data;
+using Services;
+using Services.Abstraction;
+using Services.MappingProfile;
+using Shared.ProductsDto;
+using System.Reflection.Metadata;
+
+using System.Threading.Tasks;
+
 namespace StoreApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
 
             builder.Services.AddControllers();
+           builder.Services.AddDbContext<StoreDbContext>(option =>
+            {
+                option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+             });
+
+            builder.Services.AddScoped<IDbInitializer,DbInitializer>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
+            builder.Services.AddAutoMapper(x=>x.AddProfile(new ProductProfile()));
+            builder.Services.AddTransient<PictureUrlResolver>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
+        await    SeedDbAsync(app);
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -26,11 +51,19 @@ namespace StoreApi
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
+            app.UseStaticFiles();
 
             app.MapControllers();
 
             app.Run();
+        }
+
+       static async Task SeedDbAsync( WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var dbInttialzer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+           await dbInttialzer.InitializerAsync();
+
         }
     }
 }
