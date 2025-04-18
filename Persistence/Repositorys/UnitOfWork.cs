@@ -1,7 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Entities;
 using Persistence.Data;
-using Persistence.Repositorys;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Persistence
+namespace Persistence.Repositorys
 {
     public class UnitOfWork : IUnitOfWork
     {
