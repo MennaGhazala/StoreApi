@@ -50,11 +50,11 @@ namespace Persistence
                 if (!_context.Products.Any())
                 {
                     var ProductsData = File.ReadAllText(@"..\Persistence\Data\Seeding\products.json");
-                    var Products = JsonSerializer.Deserialize<List<ProductBrand>>(ProductsData);
+                    var Products = JsonSerializer.Deserialize<List<Product>>(ProductsData);
                     if (Products is not null && Products.Any())
                     {
 
-                     await   _context.ProductBrands.AddRangeAsync(Products);
+                     await   _context.Products.AddRangeAsync(Products);
                      await   _context.SaveChangesAsync();
                     }
                 }

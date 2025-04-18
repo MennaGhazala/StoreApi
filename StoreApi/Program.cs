@@ -1,8 +1,16 @@
 
+using AutoMapper;
 using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Persistence;
 using Persistence.Data;
+using Services;
+using Services.Abstraction;
+using Services.MappingProfile;
+using Shared.ProductsDto;
+using System.Reflection.Metadata;
+
 using System.Threading.Tasks;
 
 namespace StoreApi
@@ -23,7 +31,9 @@ namespace StoreApi
 
             builder.Services.AddScoped<IDbInitializer,DbInitializer>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
+            builder.Services.AddAutoMapper(x=>x.AddProfile(new ProductProfile()));
+            builder.Services.AddTransient<PictureUrlResolver>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -41,7 +51,7 @@ namespace StoreApi
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
+            app.UseStaticFiles();
 
             app.MapControllers();
 
