@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Persistence;
 using Persistence.Data;
+using Persistence.Repositorys;
 using Services;
 using Services.Abstraction;
 using Services.MappingProfile;
