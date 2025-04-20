@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Services.Specifications;
 
 namespace Services
 {
@@ -23,9 +24,10 @@ namespace Services
         
         }
 
-        public async Task<IEnumerable<ProductResultDto>> GetAllProductaAsync()
+        public async Task<IEnumerable<ProductResultDto>> GetAllProductaAsync(ProductSpecificationParam  specificationParam)
         {
-            var products = await unitOfWork.GetRepository<Product, int>().GetAllAsync();
+            var specs = new ProductWithFilterSpecification(specificationParam);
+            var products = await unitOfWork.GetRepository<Product, int>().GetAllAsync(specs);
             var mappedproducts= mapper.Map<IEnumerable<ProductResultDto>>(products);
         return mappedproducts;
         }
@@ -33,6 +35,7 @@ namespace Services
         public async Task<IEnumerable<TypeResultDto>> GetAllTypesAsync()
         {
             var Types = await unitOfWork.GetRepository<ProductType, int>().GetAllAsync();
+            
             var mappedType = mapper.Map<IEnumerable<TypeResultDto>>(Types);
 
             return mappedType;
@@ -40,7 +43,11 @@ namespace Services
 
         public  async Task<ProductResultDto> GetProductaByIdAsync(int id)
         {
-            var product = await unitOfWork.GetRepository<Product, int>().GetAsync(id);
+           
+            var specs = new ProductWithFilterSpecification( id);
+
+            var product = await unitOfWork.GetRepository<Product, int>().GetAsync(specs);
+            
             var mappedproduct = mapper.Map<ProductResultDto>(product);
 
             return mappedproduct;

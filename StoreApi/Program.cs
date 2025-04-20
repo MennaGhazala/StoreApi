@@ -11,7 +11,7 @@ using Services.Abstraction;
 using Services.MappingProfile;
 using Shared.ProductsDto;
 using System.Reflection.Metadata;
-
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace StoreApi
@@ -23,8 +23,12 @@ namespace StoreApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            }); 
            builder.Services.AddDbContext<StoreDbContext>(option =>
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
