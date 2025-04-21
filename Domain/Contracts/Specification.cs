@@ -19,6 +19,13 @@ namespace Domain.Contracts
 
         public Expression<Func<T, object>> OrderBy{ get; private set; }
         public Expression<Func<T, object>> OrderByDescending { get; private set; }
+       
+        public int Skip { get; private set; }
+        public int  Take { get; private set; }
+        
+        public bool  IsPaginted { get; private set; }
+
+        
         protected void AddInclude(Expression<Func<T, object>> expression) 
         =>Includes.Add(expression);
 
@@ -30,7 +37,14 @@ namespace Domain.Contracts
        => OrderByDescending=orderByDescending;
 
 
+        protected void ApplyPagintion( int pageIndex ,int pageSize )
+        { 
+            IsPaginted = true;
+             Take = pageSize;
+            Skip = (pageIndex - 1) * pageSize;
 
+
+        }
 
 
 

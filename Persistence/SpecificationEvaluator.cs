@@ -19,7 +19,11 @@ namespace Persistence
             if (specification.OrderBy is not null)
                 query = query.OrderBy(specification.OrderBy);
             else if (specification.OrderByDescending is not null)
-                query = query.OrderByDescending(specification.OrderByDescending);
+               query = query.OrderByDescending(specification.OrderByDescending);
+            
+            if(specification.IsPaginted)
+                query=query.Skip(specification.Skip).Take(specification.Take);
+            
             return query;
           }
     }

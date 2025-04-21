@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Services.Specifications;
+using Shared;
 
 namespace Services
 {
@@ -24,12 +25,15 @@ namespace Services
         
         }
 
-        public async Task<IEnumerable<ProductResultDto>> GetAllProductaAsync(ProductSpecificationParam  specificationParam)
+        public async Task<PaginatedResult<ProductResultDto>> GetAllProductaAsync(ProductSpecificationParam  specificationParam)
         {
             var specs = new ProductWithFilterSpecification(specificationParam);
             var products = await unitOfWork.GetRepository<Product, int>().GetAllAsync(specs);
+            var countSpecs = new ProductCountSpecification(specificationParam);
+            var totalCount = await unitOfWork.GetRepository<Product, int>().CountAsync(countSpecs);
             var mappedproducts= mapper.Map<IEnumerable<ProductResultDto>>(products);
-        return mappedproducts;
+            return new PaginatedResult<ProductResultDto>
+                    (specificationParam.PageIndex, specificationParam.PageSize,totalCount, mappedproducts);
         }
 
         public async Task<IEnumerable<TypeResultDto>> GetAllTypesAsync()
