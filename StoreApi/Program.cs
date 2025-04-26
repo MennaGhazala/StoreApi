@@ -1,6 +1,7 @@
 
 using AutoMapper;
 using Domain.Contracts;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Persistence;
@@ -10,6 +11,9 @@ using Services;
 using Services.Abstraction;
 using Services.MappingProfile;
 using Shared.ProductsDto;
+using StackExchange.Redis;
+using StoreApi.Factories;
+using StoreApi.Middlewares;
 using System.Reflection.Metadata;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -30,22 +34,37 @@ namespace StoreApi
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             }); 
            builder.Services.AddDbContext<StoreDbContext>(option =>
-            {
+           {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-             });
+           });
 
             builder.Services.AddScoped<IDbInitializer,DbInitializer>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IServiceManager, ServiceManager>();
+            builder.Services.AddScoped<IBasketRepository, BasketRepository>();
             builder.Services.AddAutoMapper(x=>x.AddProfile(new ProductProfile()));
+            builder.Services.AddAutoMapper(typeof(BasketProfile));
+
             builder.Services.AddTransient<PictureUrlResolver>();
+            builder.Services.AddSingleton<IConnectionMultiplexer>(
+                _=> ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis"))
+                );
+
+            builder.Services.Configure<ApiBehaviorOptions>( options=>
+            {
+                options.InvalidModelStateResponseFactory = ApiResponseFactory.CustomValidationErrorResponse;
+                
+         
+            } );
+            
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-        await    SeedDbAsync(app);
+            await    SeedDbAsync(app);
+            app.UseMiddleware<GlobalErrorHandlingMiddleware>();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Services.Specifications;
 using Shared;
+using Domain.Exceptions;
 
 namespace Services
 {
@@ -52,10 +53,12 @@ namespace Services
 
             var product = await unitOfWork.GetRepository<Product, int>().GetAsync(specs);
             
-            var mappedproduct = mapper.Map<ProductResultDto>(product);
 
-            return mappedproduct;
+
+            return product is null ? throw new ProductNotFoundException(id) : mapper.Map<ProductResultDto>(product);
 
         }
     }
+
+   
 }

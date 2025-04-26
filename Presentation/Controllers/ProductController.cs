@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Services.Abstraction;
 using Shared;
+using Shared.ErrorModels;
 using Shared.ProductsDto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +22,7 @@ namespace Presentation.Controllers
 
         }
         [HttpGet]
+        [ProducesResponseType(typeof(ProductResultDto),(int)HttpStatusCode.OK)]
         public async Task <ActionResult<ProductResultDto>>GetProduct(int id) 
         {
         var product = await serviceManager.ProductService.GetProductaByIdAsync(id);
