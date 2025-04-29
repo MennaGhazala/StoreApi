@@ -1,11 +1,15 @@
 
 using AutoMapper;
 using Domain.Contracts;
+using Domain.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Persistence.Data;
+using Persistence.Identity;
 using Persistence.Repositorys;
 using Services;
 using Services.Abstraction;
@@ -37,6 +41,22 @@ namespace StoreApi
            {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
            });
+
+            builder.Services.AddDbContext<StoreIdentityDbContext>(option =>
+            {
+                option.UseSqlServer(builder.Configuration.GetConnectionString("IdentitySqlConnection"));
+            });
+
+            builder.Services.AddIdentity<User, IdentityRole>(
+                option =>
+                {
+                    option.Password.RequireNonAlphanumeric = false;
+                    option.Password.RequireUppercase = false;
+                     option.Password.RequireLowercase = false;
+                     option.Password.RequiredLength = 8;
+                     option.Password.RequireDigit = true;
+                    option.User.RequireUniqueEmail = true;
+                }).AddEntityFrameworkStores<StoreIdentityDbContext>();         
 
             builder.Services.AddScoped<IDbInitializer,DbInitializer>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -73,7 +93,7 @@ namespace StoreApi
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles();
 
@@ -86,7 +106,9 @@ namespace StoreApi
         {
             using var scope = app.Services.CreateScope();
             var dbInttialzer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-           await dbInttialzer.InitializerAsync();
+         
+            await dbInttialzer.InitializerAsync();
+            await dbInttialzer.InitializeIdentityAsync();
 
         }
     }

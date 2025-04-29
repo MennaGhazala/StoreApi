@@ -76,6 +76,7 @@ namespace StoreApi.Middlewares
 
             httpContext.Response.StatusCode = ex switch
             {
+                UnAuthorizedException=>(int)HttpStatusCode.Unauthorized,
                 NotFoundException => (int)HttpStatusCode.NotFound,
                 ValidationException  validationException=> HandelValidationException(validationException,response),
                 _ => (int)HttpStatusCode.InternalServerError
