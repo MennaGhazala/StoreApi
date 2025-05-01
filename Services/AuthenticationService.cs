@@ -2,9 +2,11 @@
 using Domain.Entities.Identity;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Services.Abstraction;
+using Shared;
 using Shared.IdentityDto;
 using System;
 using System.Collections.Generic;
@@ -100,7 +102,55 @@ namespace Services
             return new JwtSecurityTokenHandler().WriteToken(token);
 
         }
-    
+
+      
+
+        
+
+        public async Task<bool> IsEmailExist(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+           return user !=null;
+        }
+
+        public async Task<AddressDto> GetUserAddressAsync(string email)
+        {
+            var user = await userManager.Users.Include(x=>x.Address)
+                .FirstOrDefaultAsync(x=>x.Email==email);
+            if (user is null)
+                throw new UserNoyFound(email);
+
+            return mapper.Map<AddressDto>(user.Address);
+        }
+
+        public async Task<AddressDto> UpdateUserAddressAsync(string email, AddressDto addressDto)
+        {
+            var user = await userManager.Users.Include(x => x.Address)
+                .FirstOrDefaultAsync(x => x.Email == email);
+            if (user is null)
+                throw new UserNoyFound(email);
+          
+            var mappedAddress= mapper.Map<Address>(addressDto);
+                user.Address = mappedAddress;
+            
+            
+            await userManager.UpdateAsync(user);
+            return addressDto;
+        }
+
+        public async Task<UserResultDto> GetUserByEmailAsync(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user is null)
+                throw new UserNoyFound(email);
+
+            return new UserResultDto(
+                user.DisplayName,
+                user.Email,
+                null
+
+                );
+        }
     }
 
 }
