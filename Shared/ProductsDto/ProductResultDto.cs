@@ -15,9 +15,9 @@ namespace Shared.ProductsDto
 
         public decimal Price { get; set; }
         
-        public int BrandName { get; set; }
+        public string BrandName { get; set; }
 
         
-        public int TypeName { get; set; }
+        public string TypeName { get; set; }
     }
 }
