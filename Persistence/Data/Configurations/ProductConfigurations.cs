@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Persistence.Configurations
+namespace Persistence.Data.Configurations
 {
-    public class ProductConfiguration : IEntityTypeConfiguration<Product>
+    public class ProductConfigurations : IEntityTypeConfiguration<Product>
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {

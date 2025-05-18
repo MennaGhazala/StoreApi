@@ -1,6 +1,7 @@
 ﻿using Domain.Contracts;
 using Domain.Entities;
 using Domain.Entities.Identity;
+using Domain.Entities.OrderEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -115,6 +116,19 @@ namespace Persistence
 
                      await   _context.Products.AddRangeAsync(Products);
                      await   _context.SaveChangesAsync();
+                    }
+                }
+
+
+                if (!_context.DeliveryMethods.Any())
+                {
+                    var deliveryMethods = File.ReadAllText(@"..\Persistence\Data\Seeding\delivery.json");
+                    var delivery = JsonSerializer.Deserialize<List<DeliveryMethod>>(deliveryMethods);
+                    if (delivery is not null && delivery.Any())
+                    {
+
+                        await _context.DeliveryMethods.AddRangeAsync(delivery);
+                        await _context.SaveChangesAsync();
                     }
                 }
             }
